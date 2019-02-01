@@ -86,7 +86,18 @@
             card.removeAttribute('hidden');
             app.container.appendChild(card);
             app.visibleCards[key] = card;
+        } else {
+            var cardLastUpdatedElem = card.querySelector('.card-last-updated');
+            var cardLastUpdated = cardLastUpdatedElem.textContent;
+            if (cardLastUpdated) {
+                cardLastUpdated = new Date(cardLastUpdated);
+                // Bail if the card has more recent data then the data
+                if (dataLastUpdated.getTime() < cardLastUpdated.getTime()) {
+                    return;
+                }
+            }
         }
+
         card.querySelector('.card-last-updated').textContent = data.created;
 
         var scheduleUIs = card.querySelectorAll('.schedule');
@@ -120,6 +131,22 @@
 
     app.getSchedule = function(key, label) {
         var url = 'https://api-ratp.pierre-grimaud.fr/v3/schedules/' + key;
+
+        // Se valida existencia de objeto caches, se solicitan los datos
+        if ('caches' in window) {
+            caches.match(url).then(function(response) {
+                if (response) {
+                    response.json().then(function updateFromCache(json) {
+                        var result = {};
+                        result.key = key;
+                        result.label = label;
+                        result.created = json._metadata.date;
+                        result.schedules = json.result.schedules;
+                        app.updateTimetableCard(result);
+                    });
+                }
+            });
+        }
 
         var request = new XMLHttpRequest();
         request.onreadystatechange = function() {
