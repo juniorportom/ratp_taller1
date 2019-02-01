@@ -40,6 +40,8 @@
         }
         app.getSchedule(key, label);
         app.selectedTimetables.push({ key: key, label: label });
+        // Se llama función para guardar la estacion seleccionada en el localStorage
+        app.saveSelectedTimetables();
         app.toggleAddDialog(false);
     });
 
