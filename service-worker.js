@@ -8,7 +8,13 @@ var filesToCache = [
     '/scripts/app.js',
     '/styles/inline.css',
     '/images/ic_add_white_24px.svg',
-    '/images/ic_refresh_white_24px.svg'
+    '/images/ic_refresh_white_24px.svg',
+    'images/icon-128x128.png',
+    'images/icon-144x144.png',
+    'images/icon-152x152.png',
+    'images/icon-192x192.png',
+    'images/icon-256x256.png',
+    'images/icon-512x512.png'
 ];
 
 // Se alamcena en cache el app

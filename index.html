@@ -16,51 +16,63 @@
 
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <link rel="canonical" href="https://weather-pwa-sample.firebaseapp.com/final/">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Paris Métro 1</title>
-  <link rel="stylesheet" type="text/css" href="styles/inline.css">
 
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="canonical" href="https://ratp-pwa-sample.firebaseapp.com/final/">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2F3BA2" />
+    <title>Paris Métro 1</title>
+    <link rel="stylesheet" type="text/css" href="styles/inline.css">
+
+    <link rel="manifest" href="/manifest.json">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="RATP">
+    <link rel="apple-touch-icon" href="images/icon-152x152.png">
+
+    <meta name="msapplication-TileImage" content="images/icon-144x144.png">
+    <meta name="msapplication-TileColor" content="#2F3BA2">
 </head>
+
 <body>
 
-  <header class="header">
-    <h1 class="header__title">Paris Métro 1</h1>
-    <button id="butRefresh" class="headerButton" aria-label="Refresh"></button>
-    <button id="butAdd" class="headerButton" aria-label="Add"></button>
-  </header>
+    <header class="header">
+        <h1 class="header__title">Paris Métro 1</h1>
+        <button id="butRefresh" class="headerButton" aria-label="Refresh"></button>
+        <button id="butAdd" class="headerButton" aria-label="Add"></button>
+    </header>
 
-  <main class="main">
+    <main class="main">
 
-    <div class="card cardTemplate" hidden>
-      <div class="line-key" hidden></div>
-      <div class="card-last-updated" hidden></div>
-      <div class="label"></div>
-      <div class="subtitle"></div>
-      <div class="schedule">
-        <div class="message"></div>
-      </div>
-      <div class="schedule">
-        <div class="message"></div>
-      </div>
-      <div class="schedule">
-        <div class="message"></div>
-      </div>
-      <div class="schedule">
-        <div class="message"></div>
-      </div>
-    </div>
+        <div class="card cardTemplate" hidden>
+            <div class="line-key" hidden></div>
+            <div class="card-last-updated" hidden></div>
+            <div class="label"></div>
+            <div class="subtitle"></div>
+            <div class="schedule">
+                <div class="message"></div>
+            </div>
+            <div class="schedule">
+                <div class="message"></div>
+            </div>
+            <div class="schedule">
+                <div class="message"></div>
+            </div>
+            <div class="schedule">
+                <div class="message"></div>
+            </div>
+        </div>
 
-  </main>
+    </main>
 
-  <div class="dialog-container">
-    <div class="dialog">
-      <div class="dialog-title">Add new timetable</div>
-      <div class="dialog-body">
-        <select id="selectTimetableToAdd">
+    <div class="dialog-container">
+        <div class="dialog">
+            <div class="dialog-title">Add new timetable</div>
+            <div class="dialog-body">
+                <select id="selectTimetableToAdd">
           <!-- Values map to Yahoo Weather API Where On Earth Identifiers (WOEIDs).
                https://developer.yahoo.com/weather/documentation.html#req -->
           <option value="metros/1/nation/A">Nation, Direction La Défense</option>
@@ -77,22 +89,23 @@
           <option value="metros/1/champs+elysees+clemenceau/R">Champs-Elysees-Clemenceau, Direction Château de Vincennes</option>
 
         </select>
-      </div>
-      <div class="dialog-buttons">
-        <button id="butAddCity" class="button">Add</button>
-        <button id="butAddCancel" class="button">Cancel</button>
-      </div>
+            </div>
+            <div class="dialog-buttons">
+                <button id="butAddCity" class="button">Add</button>
+                <button id="butAddCancel" class="button">Cancel</button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div class="loader">
-    <svg viewBox="0 0 32 32" width="32" height="32">
+    <div class="loader">
+        <svg viewBox="0 0 32 32" width="32" height="32">
       <circle id="spinner" cx="16" cy="16" r="14" fill="none"></circle>
     </svg>
-  </div>
+    </div>
 
-  <!-- Uncomment the line below when ready to test with fake data -->
-  <script src="scripts/app.js" async></script>
+    <!-- Uncomment the line below when ready to test with fake data -->
+    <script src="scripts/app.js" async></script>
 
 </body>
+
 </html>
