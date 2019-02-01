@@ -8,7 +8,14 @@
         spinner: document.querySelector('.loader'),
         cardTemplate: document.querySelector('.cardTemplate'),
         container: document.querySelector('.main'),
-        addDialog: document.querySelector('.dialog-container')
+        addDialog: document.querySelector('.dialog-container'),
+        // In the following line, you should include the prefixes of implementations you want to test.
+        indexedDB: window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB,
+        // DON'T use "var indexedDB = ..." if you're not in a function.
+        // Moreover, you may need references to some window.IDB* objects:
+        iDBTransaction: window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction,
+        iDBKeyRange: window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange,
+        useIndexedDB: true
     };
 
 
@@ -125,7 +132,34 @@
     // Save list of times to localStorage.
     app.saveSelectedTimetables = function() {
         var selectedTimetables = JSON.stringify(app.selectedTimetables);
-        localStorage.selectedTimetables = selectedTimetables;
+        if (!app.useIndexedDB) {
+            localStorage.selectedTimetables = selectedTimetables;
+        } else {
+            var db;
+            var request = app.indexedDB.open("ratpDB");
+            request.onerror = function(event) {
+                app.useIndexedDB = false;
+                console.log("Why didn't you allow my web app to use IndexedDB?!");
+            };
+            request.onsuccess = function(event) {
+                db = event.target.result;
+                var transac = db.transaction(["times"], "readwrite");
+
+                var objectStore = transac.objectStore("times");
+                var request = objectStore.get("time");
+                request.onsuccess = function(event) {
+                    if (request.result == null)
+                        objectStore.add({ id: "time", value: selectedTimetables });
+                    else {
+                        var data = request.result;
+                        data.value = selectedTimetables;
+                        store.put(data);
+                    }
+                };
+
+            };
+        }
+
     };
 
 
@@ -177,6 +211,14 @@
         });
     };
 
+    app.loadDefault = function() {
+        app.updateTimetableCard(initialStationTimetable);
+        app.selectedTimetables = [
+            { key: initialStationTimetable.key, label: initialStationTimetable.label }
+        ];
+        app.saveSelectedTimetables();
+    }
+
     /*
      * Fake timetable data that is presented when the user first uses the app,
      * or when the user has not saved any stations. See startup code for more
@@ -202,6 +244,29 @@
 
     };
 
+    // Inicialización de IndexedDB
+    if (window.indexedDB) {
+        // Open (or create) the database
+        var dataBase = app.indexedDB.open("ratpDB");
+
+        dataBase.onerror = function(event) {
+            app.useIndexedDB = false;
+            console.log("Why didn't you allow my web app to use IndexedDB?!");
+        };
+
+        dataBase.onsuccess = function(event) {
+            console.log('Base de datos cargada correctamente.');
+        };
+
+        // Create the schema
+        dataBase.onupgradeneeded = function(event) {
+            var db = event.target.result;
+            db.createObjectStore("times", { keyPath: "id" });
+        };
+    } else {
+        app.useIndexedDB = false;
+    }
+
 
     /************************************************************************
      *
@@ -214,19 +279,53 @@
      *   SimpleDB (https://gist.github.com/inexorabletash/c8069c042b734519680c)
      ************************************************************************/
 
-    app.selectedTimetables = localStorage.selectedTimetables;
-    if (app.selectedTimetables) {
-        app.selectedTimetables = JSON.parse(app.selectedTimetables);
-        app.selectedTimetables.forEach(function(sch) {
-            app.getSchedule(sch.key, sch.label);
-        });
+    if (!app.useIndexedDB) {
+        app.selectedTimetables = localStorage.selectedTimetables;
+        if (app.selectedTimetables) {
+            app.selectedTimetables = JSON.parse(app.selectedTimetables);
+            app.selectedTimetables.forEach(function(sch) {
+                app.getSchedule(sch.key, sch.label);
+            });
+        } else {
+            app.updateTimetableCard(initialStationTimetable);
+            app.selectedTimetables = [
+                { key: initialStationTimetable.key, label: initialStationTimetable.label }
+            ];
+            app.saveSelectedTimetables();
+            app.loadDefault();
+        }
     } else {
-        app.updateTimetableCard(initialStationTimetable);
-        app.selectedTimetables = [
-            { key: initialStationTimetable.key, label: initialStationTimetable.label }
-        ];
-        app.saveSelectedTimetables();
+        var dataBase = app.indexedDB.open("ratpDB");
+        dataBase.onerror = function(event) {
+            app.useIndexedDB = false;
+            console.log("Why didn't you allow my web app to use IndexedDB?!");
+        };
+
+        dataBase.onsuccess = function(event) {
+            var db = event.target.result;
+            var tx = db.transaction(["times"], "readwrite");
+
+            // Close the db when the transaction is done
+            tx.oncomplete = function() {
+                if (app.selectedTimetables.length == 0) {
+                    app.loadDefault();
+                }
+                db.close();
+            };
+            var store = tx.objectStore("times");
+            var request = store.get("time");
+
+            request.onsuccess = function(event) {
+                if (request.result != null) {
+                    app.selectedTimetables = JSON.parse(request.result.value);
+                    app.selectedTimetables.forEach(function(sch) {
+                        app.getSchedule(sch.key, sch.label);
+                    });
+                }
+            };
+        };
     }
+
 
     // Agregar codigo de service worker
 
