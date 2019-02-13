@@ -117,6 +117,8 @@
         }
 
         if (app.isLoading) {
+            window.cardLoadTime = performance.now();
+            window.apiLoadTime = performance.now();
             app.spinner.setAttribute('hidden', true);
             app.container.removeAttribute('hidden');
             app.isLoading = false;
@@ -165,6 +167,7 @@
 
     app.getSchedule = function(key, label) {
         var url = 'https://api-ratp.pierre-grimaud.fr/v3/schedules/' + key;
+        window.apiLoadTime = performance.now();
 
         // Se valida existencia de objeto caches, se solicitan los datos
         if ('caches' in window) {
