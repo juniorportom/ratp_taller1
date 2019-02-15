@@ -118,7 +118,6 @@
 
         if (app.isLoading) {
             window.cardLoadTime = performance.now();
-            window.apiLoadTime = performance.now();
             app.spinner.setAttribute('hidden', true);
             app.container.removeAttribute('hidden');
             app.isLoading = false;
@@ -189,6 +188,7 @@
         request.onreadystatechange = function() {
             if (request.readyState === XMLHttpRequest.DONE) {
                 if (request.status === 200) {
+                    window.apiLoadTime = performance.now();
                     var response = JSON.parse(request.response);
                     var result = {};
                     result.key = key;
@@ -199,6 +199,7 @@
                 }
             } else {
                 // Return the initial weather forecast since no data is available.
+                window.apiLoadTime = performance.now();
                 app.updateTimetableCard(initialStationTimetable);
             }
         };
@@ -215,6 +216,7 @@
     };
 
     app.loadDefault = function() {
+        window.apiLoadTime = performance.now();
         app.updateTimetableCard(initialStationTimetable);
         app.selectedTimetables = [
             { key: initialStationTimetable.key, label: initialStationTimetable.label }
